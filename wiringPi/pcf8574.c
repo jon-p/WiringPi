@@ -39,13 +39,11 @@
  *********************************************************************************
  */
 
-static void myPinMode (struct wiringPiNodeStruct *node, int pin, int mode)
+static void myPinMode (wiringPiNode *node, int pin, int mode)
 {
-  int bit, old ;
+  int bit  = 1 << ((pin - node->pinBase) & 7) ;
 
-  bit  = 1 << ((pin - node->pinBase) & 7) ;
-
-  old = node->data2 ;
+  int old = node->data2 ;
   if (mode == OUTPUT)
     old &= (~bit) ;	// Write bit to 0
   else
@@ -62,13 +60,11 @@ static void myPinMode (struct wiringPiNodeStruct *node, int pin, int mode)
  *********************************************************************************
  */
 
-static void myDigitalWrite (struct wiringPiNodeStruct *node, int pin, int value)
+static void myDigitalWrite (wiringPiNode *node, int pin, int value)
 {
-  int bit, old ;
+  int bit  = 1 << ((pin - node->pinBase) & 7) ;
 
-  bit  = 1 << ((pin - node->pinBase) & 7) ;
-
-  old = node->data2 ;
+  int old = node->data2 ;
   if (value == LOW)
     old &= (~bit) ;
   else
@@ -84,17 +80,12 @@ static void myDigitalWrite (struct wiringPiNodeStruct *node, int pin, int value)
  *********************************************************************************
  */
 
-static int myDigitalRead (struct wiringPiNodeStruct *node, int pin)
+static int myDigitalRead (wiringPiNode *node, int pin)
 {
-  int mask, value ;
+  int mask  = 1 << ((pin - node->pinBase) & 7) ;
+  int value = wiringPiI2CRead (node->fd) ;
 
-  mask  = 1 << ((pin - node->pinBase) & 7) ;
-  value = wiringPiI2CRead (node->fd) ;
-
-  if ((value & mask) == 0)
-    return LOW ;
-  else 
-    return HIGH ;
+  return ((value & mask) == 0) ? LOW : HIGH;
 }
 
 
@@ -106,21 +97,25 @@ static int myDigitalRead (struct wiringPiNodeStruct *node, int pin)
  *********************************************************************************
  */
 
-int pcf8574Setup (const int pinBase, const int i2cAddress)
+wiringPiNode* pcf8574Setup (const int pinBase, const int i2cAddress)
 {
   int fd ;
-  struct wiringPiNodeStruct *node ;
 
   if ((fd = wiringPiI2CSetup (i2cAddress)) < 0)
-    return fd ;
+    return 0 ;
 
-  node = wiringPiNewNode (pinBase, 8) ;
+  wiringPiNode* node = wiringPiNewNode (pinBase, 8) ;
 
   node->fd           = fd ;
   node->pinMode      = myPinMode ;
   node->digitalRead  = myDigitalRead ;
   node->digitalWrite = myDigitalWrite ;
   node->data2        = wiringPiI2CRead (fd) ;
+node->data3 = 0;
+  return node ;
+}
 
-  return 0 ;
+void pcf8574SetBaseRaw(wiringPiNode* node, unsigned char baseValue)
+{
+node->data3 = baseValue;
 }

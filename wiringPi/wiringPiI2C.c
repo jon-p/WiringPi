@@ -100,7 +100,7 @@ struct i2c_smbus_ioctl_data
 
 static inline int i2c_smbus_access (int fd, char rw, uint8_t command, int size, union i2c_smbus_data *data)
 {
-  struct i2c_smbus_ioctl_data args ;
+  struct i2c_smbus_ioctl_data args ={};
 
   args.read_write = rw ;
   args.command    = command ;
@@ -118,7 +118,7 @@ static inline int i2c_smbus_access (int fd, char rw, uint8_t command, int size, 
 
 int wiringPiI2CRead (int fd)
 {
-  union i2c_smbus_data data ;
+  union i2c_smbus_data data ={};
 
   if (i2c_smbus_access (fd, I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &data))
     return -1 ;
@@ -160,7 +160,7 @@ int wiringPiI2CReadReg16 (int fd, int reg)
  *********************************************************************************
  */
 
-int wiringPiI2CWrite (int fd, int data)
+int wiringPiI2CWrite (int fd, uint8_t data)
 {
   return i2c_smbus_access (fd, I2C_SMBUS_WRITE, data, I2C_SMBUS_BYTE, NULL) ;
 }
@@ -172,7 +172,7 @@ int wiringPiI2CWrite (int fd, int data)
  *********************************************************************************
  */
 
-int wiringPiI2CWriteReg8 (int fd, int reg, int value)
+int wiringPiI2CWriteReg8 (int fd, int reg, uint8_t value)
 {
   union i2c_smbus_data data ;
 
@@ -180,7 +180,7 @@ int wiringPiI2CWriteReg8 (int fd, int reg, int value)
   return i2c_smbus_access (fd, I2C_SMBUS_WRITE, reg, I2C_SMBUS_BYTE_DATA, &data) ;
 }
 
-int wiringPiI2CWriteReg16 (int fd, int reg, int value)
+int wiringPiI2CWriteReg16 (int fd, int reg, uint16_t value)
 {
   union i2c_smbus_data data ;
 

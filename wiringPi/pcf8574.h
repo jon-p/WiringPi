@@ -25,9 +25,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-extern int pcf8574Setup (const int pinBase, const int i2cAddress) ;
-
+typedef struct wiringPiNodeStruct wiringPiNode;
+extern wiringPiNode* pcf8574Setup (const int pinBase, const int i2cAddress) ;
+extern void pcf8574SetBaseRaw(wiringPiNode*  node, unsigned char baseValue);
 #ifdef __cplusplus
 }
 #endif
